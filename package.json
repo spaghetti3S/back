@@ -1,0 +1,24 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "산학프로젝트 스파게티 3인분 백엔드 입니다.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "local-test": "nodemon local.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spaghetti3S/back.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/spaghetti3S/back/issues"
+  },
+  "homepage": "https://github.com/spaghetti3S/back#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.12"
+  }
+}
