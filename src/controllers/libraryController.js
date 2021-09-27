@@ -1,8 +1,8 @@
 const libraryService = require("../services/libraryService");
 
-exports.getExample = async (req, res, next) => {
+exports.getBooksWithTitle = async (req, res, next) => {
   try {
-    let rows = await libraryService.getExample(req);
+    let rows = await libraryService.getBooksWithTitle(req);
     return res.json(rows);
   } catch (err) {
     return res.status(500).json(err);
