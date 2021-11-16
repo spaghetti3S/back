@@ -1,5 +1,4 @@
 const axios = require("axios");
-const library = require("../schema/library");
 require("dotenv").config();
 
 const getBooksWithTitleURL = (keyword) => {
@@ -26,9 +25,9 @@ const getRelevenceURL = (code) => {
   );
 };
 
-const getLibraryInfoURL = (region) => {
+const getLoanAvailableURL = (lib, isbn) => {
   return encodeURI(
-    `http://data4library.kr/api/extends/libSrch?authKey=${process.env.LIBRARY_API_KEY}&pageSize=50&dtl_region=${region}&format=json`
+    `http://data4library.kr/api/bookExist?authKey=${process.env.LIBRARY_API_KEY}&libCode=${lib}&isbn13=${isbn}&format=json`
   );
 };
 
@@ -72,27 +71,11 @@ exports.getRelevence = async (req) => {
   }
 };
 
-exports.getLibraryInfo = async (req) => {
+exports.getLoanAvailable = async (req) => {
   try {
-    const data = await axios.get(getLibraryInfoURL(req.params.region));
-    const datas = data.data.response.libs;
-
-    datas.map((lib) => {
-      lib = lib.lib.libInfo;
-      const L = new library({
-        libCode: lib.libCode,
-        libName: lib.libName,
-        address: lib.address,
-        region: req.params.region.slice(0, 2),
-        dtl_region: req.params.region,
-        latitude: lib.latitude,
-        longitude: lib.longitude,
-        homepage: lib.homepage,
-        closed: lib.closed,
-        operationTime: lib.operationTime,
-      });
-    });
-
+    const data = await axios.get(
+      getLoanAvailableURL(req.params.lib, req.params.isbn)
+    );
     return data.data.response;
   } catch (err) {
     console.log(err);

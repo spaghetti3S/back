@@ -37,9 +37,9 @@ exports.getRelevence = async (req, res, next) => {
   }
 };
 
-exports.getLibraryInfo = async (req, res, next) => {
+exports.getLoanAvailable = async (req, res, next) => {
   try {
-    let rows = await libraryService.getLibraryInfo(req);
+    let rows = await libraryService.getLoanAvailable(req);
     return res.json(rows);
   } catch (err) {
     return res.status(500).json(err);
