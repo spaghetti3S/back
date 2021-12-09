@@ -27,19 +27,36 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-exports.logoutUser = async (req, res, next) => {
+exports.getUserInfo = async (req, res, next) => {
   try {
-    let rows = await mongodbService.logoutUser(req);
+    let rows = await mongodbService.getUserInfo(req);
     return res.json(rows);
   } catch (err) {
     return res.status(500).json(err);
   }
 };
 
-exports.sessionCheck = async (req, res, next) => {
+exports.changeState = async (req, res, next) => {
   try {
-    console.log("?");
-    let rows = await mongodbService.sessionCheck(req, res);
+    let rows = await mongodbService.changeState(req);
+    return res.json(rows);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+};
+
+exports.getState = async (req, res, next) => {
+  try {
+    let rows = await mongodbService.getState(req);
+    return res.json(rows);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+};
+
+exports.getUserBook = async (req, res, next) => {
+  try {
+    let rows = await mongodbService.getUserBook(req);
     return res.json(rows);
   } catch (err) {
     return res.status(500).json(err);

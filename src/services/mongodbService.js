@@ -1,7 +1,22 @@
 const bcrypt = require("bcrypt");
-
+const jwt = require("jsonwebtoken");
 const library = require("../schema/library");
 const user = require("../schema/user");
+const userBook = require("../schema/userBook");
+
+const generateToken = (userId) => {
+  const token = jwt.sign(
+    {
+      _id: this.id,
+      userId: userId,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1d",
+    }
+  );
+  return token;
+};
 
 exports.getLibraryAround = async (req) => {
   try {
@@ -59,43 +74,104 @@ exports.loginUser = async (req) => {
       data[0].password
     );
     if (passwordMatch) {
-      req.session.user = {
-        userId: userData.userId,
-        sex: data[0].sex,
-        age: data[0].age,
-        valid: new Date() + 86400,
-      };
-      return { code: 200, msg: "Login Success", cookie: req.session };
+      const token = generateToken(userData.userId);
+      return { code: 200, msg: "Login Success", token: token };
     } else {
       return { code: 400, msg: "Login Failed" };
     }
   } catch (err) {
     console.log(err);
-    throw Error(err);
+    return { code: 400, msg: "Login Failed" };
   }
 };
 
-exports.logoutUser = async (req) => {
+exports.getUserInfo = async (req) => {
   try {
-    req.session.destroy();
-    return { logoutSuccess: true };
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    const data = await user.find({
+      userId: decoded.userId,
+    });
+    return { code: 200, data: data[0] };
   } catch (err) {
     console.log(err);
-    throw Error(err);
+    return { code: 400, msg: "Get user info Failed" };
   }
 };
 
-exports.sessionCheck = async (req, res) => {
+exports.changeState = async (req) => {
   try {
-    if (req.session.user) {
-      console.log("session exists:" + req.session.user);
-      return { sessionExist: true };
-    } else {
-      console.log("session not exists");
-      return { sessionExist: false };
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    if (decoded.userId !== req.body.userId) {
+      return { code: 400, msg: "Failed change" };
     }
+    if (req.body.action === "true") {
+      const userBookData = new userBook({
+        userId: req.body.userId,
+        isbn: req.body.book,
+        state: req.body.type,
+      }).save();
+    } else {
+      await userBook.remove({
+        userId: req.body.userId,
+        isbn: req.body.book,
+        state: req.body.type,
+      });
+    }
+
+    return { code: 200, msg: "Success change" };
   } catch (err) {
     console.log(err);
-    throw Error(err);
+    return { code: 400, msg: "Failed change" };
+  }
+};
+
+exports.getState = async (req) => {
+  try {
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    if (decoded.userId !== req.body.userId) {
+      return { code: 400, msg: "Wrong login" };
+    }
+    const interest = await userBook.find({
+      userId: req.body.userId,
+      isbn: req.body.book,
+      state: "interest",
+    });
+    const read = await userBook.find({
+      userId: req.body.userId,
+      isbn: req.body.book,
+      state: "read",
+    });
+    const totalIntrest = await userBook.find({
+      isbn: req.body.book,
+      state: "interest",
+    });
+    const totalRead = await userBook.find({
+      isbn: req.body.book,
+      state: "read",
+    });
+    return {
+      code: 200,
+      interest: interest,
+      read: read,
+      interestCount: totalIntrest.length,
+      readCount: totalRead.length,
+    };
+  } catch (err) {
+    console.log(err);
+    return { code: 400, msg: "Failed" };
+  }
+};
+
+exports.getUserBook = async (req) => {
+  try {
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    const data = await userBook.find({
+      userId: decoded.userId,
+      state: req.body.state,
+    });
+    return { code: 200, data: data };
+  } catch (err) {
+    console.log(err);
+    return { code: 400, msg: "Get book info Failed" };
   }
 };
