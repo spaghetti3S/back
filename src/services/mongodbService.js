@@ -175,3 +175,20 @@ exports.getUserBook = async (req) => {
     return { code: 400, msg: "Get book info Failed" };
   }
 };
+
+exports.reviseUserInfo = async (req) => {
+  try {
+    const decoded = jwt.verify(req.body.token, process.env.JWT_SECRET);
+    if (decoded.userId !== req.body.userId) {
+      return { code: 400, msg: "Failed change" };
+    }
+    await user.updateOne(
+      { userId: req.body.userId },
+      { sex: req.body.RSex, age: req.body.RAge }
+    );
+    return { code: 200, msg: "Success change" };
+  } catch (err) {
+    console.log(err);
+    return { code: 400, msg: "Failed change" };
+  }
+};

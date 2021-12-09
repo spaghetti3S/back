@@ -62,3 +62,12 @@ exports.getUserBook = async (req, res, next) => {
     return res.status(500).json(err);
   }
 };
+
+exports.reviseUserInfo = async (req, res, next) => {
+  try {
+    let rows = await mongodbService.reviseUserInfo(req);
+    return res.json(rows);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+};

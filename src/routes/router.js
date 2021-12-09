@@ -35,6 +35,7 @@ router.post("/user/register", mongodbController.registerUser);
 router.post("/user/login", mongodbController.loginUser);
 router.post("/user/info", mongodbController.getUserInfo);
 router.post("/user/book", mongodbController.getUserBook);
+router.post("/user/revise", mongodbController.reviseUserInfo);
 router.post("/book/changeState", mongodbController.changeState);
 router.post("/book/getState", mongodbController.getState);
 
